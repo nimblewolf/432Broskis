@@ -1,11 +1,11 @@
 // import the modules
 var Twit = require('twit');
-var sentiment = require('havenondemand');
+var sentiment = require('sentiment');
 const mongoose = require('mongoose');
 const Tweet = require('./models/tweet');
 
 // Use AP Key for Heaven on Demand and creat a new instance of heaven on demand client
-var client = new sentiment.HODClient('ba2be22a-dcea-4f2a-9b72-936c3cc1a092');
+// var client = new sentiment.HODClient('ba2be22a-dcea-4f2a-9b72-936c3cc1a092');
 
 // create an instance of the Twit module for the Twitter API
 var T = new Twit({
@@ -27,25 +27,40 @@ function streamListen(newStream){
 	newStream.on('tweet', function (tweet) {
 		streamExists=true;
 		// console.log(tweet.text);
-        // console.log("Tweet received!!!");
-        dataTweet = {'text': tweet.text}
-        client.get('analyzesentiment', dataTweet, false, function(err, resp, body){
-            if(!err){
-				var newTweet = new Tweet({
-					user: tweet.user.screen_name,
-					tweet: tweet.text,
-					sentiment: resp.body.aggregate.sentiment,
-					sentimentScore: resp.body.aggregate.score
-				});
+		// console.log("Tweet received!!!");
+		var newTweet = sentiment(tweet.text);
+		var score = newTweet.score;
+		var tweetSentiment;
+		if(score>0)tweetSentiment = "positive";
+		if(score<0)tweetSentiment = "negative";
+		if(score==0)tweetSentiment = "neutral";
+
+		var sendTweet = new Tweet({
+			user: tweet.user.screen_name,
+			tweet: tweet.text,
+			sentiment: tweetSentiment,
+			sentimentScore: score
+		});
+		sendTweet.save();
+		console.log("Tweet uploaded to database!")
+        // dataTweet = {'text': tweet.text}
+        // client.get('analyzesentiment', dataTweet, false, function(err, resp, body){
+        //     if(!err){
+		// 		var newTweet = new Tweet({
+		// 			user: tweet.user.screen_name,
+		// 			tweet: tweet.text,
+		// 			sentiment: resp.body.aggregate.sentiment,
+		// 			sentimentScore: resp.body.aggregate.score
+		// 		});
 				
-				newTweet.save();
-				console.log("Tweet uploaded to database!")
-            } else {
-				console.log(err);
-				console.log("Sentiment analysis failed...");
-				// console.log(tweet.text);
-            }
-        });
+		// 		newTweet.save();
+		// 		console.log("Tweet uploaded to database!")
+        //     } else {
+		// 		console.log(err);
+		// 		console.log("Sentiment analysis failed...");
+		// 		// console.log(tweet.text);
+        //     }
+        // });
 	});
 	newStream.on('connect', function(){
 		console.log('Attempting to connect...')
