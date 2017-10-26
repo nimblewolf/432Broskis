@@ -23,13 +23,21 @@ var currentFilter = 'trump';
 var stream;
 var usedTweets=[];
 
+function getSentiment(text){
+	return sentiment(text);
+}
 function streamListen(newStream){
 	newStream.on('tweet', function (tweet) {
 		streamExists=true;
 		// console.log(tweet.text);
 		// console.log("Tweet received!!!");
-		var newTweet = sentiment(tweet.text);
-		var score = newTweet.score;
+		var tempScore = 0;
+		for(var i =0; i<10000;i++){ //perform sentiment analysis 250 times
+			tempScore += getSentiment(tweet.text).score;
+			// console.log(tempScore);
+		}
+		var score = tempScore/10000; //get the average sentiment analysis
+		console.log(score);
 		var tweetSentiment;
 		if(score>0)tweetSentiment = "positive";
 		if(score<0)tweetSentiment = "negative";
