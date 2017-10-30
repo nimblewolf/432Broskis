@@ -51,24 +51,6 @@ function streamListen(newStream){
 		});
 		sendTweet.save();
 		console.log("Tweet uploaded to database!")
-        // dataTweet = {'text': tweet.text}
-        // client.get('analyzesentiment', dataTweet, false, function(err, resp, body){
-        //     if(!err){
-		// 		var newTweet = new Tweet({
-		// 			user: tweet.user.screen_name,
-		// 			tweet: tweet.text,
-		// 			sentiment: resp.body.aggregate.sentiment,
-		// 			sentimentScore: resp.body.aggregate.score
-		// 		});
-				
-		// 		newTweet.save();
-		// 		console.log("Tweet uploaded to database!")
-        //     } else {
-		// 		console.log(err);
-		// 		console.log("Sentiment analysis failed...");
-		// 		// console.log(tweet.text);
-        //     }
-        // });
 	});
 	newStream.on('connect', function(){
 		console.log('Attempting to connect...')
